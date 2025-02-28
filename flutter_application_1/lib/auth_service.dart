@@ -25,7 +25,51 @@ class AuthService {
     accessToken = access;
     refreshToken = refresh;
   }
+  Future<Map<String, dynamic>> requestPasswordReset(String email) async {
+  final url = Uri.parse('$baseUrl/api/password-reset-request/');
+  try {
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode({
+        'email': email,
+      }),
+    );
 
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    } else {
+      final errorData = json.decode(response.body);
+      throw Exception(errorData['error'] ?? 'Error al solicitar restablecimiento de contraseña');
+    }
+  } catch (e) {
+    throw Exception('Error de conexión: $e');
+  }
+}
+
+Future<Map<String, dynamic>> verifyResetCode(String code, String uid, String newPassword) async {
+  final url = Uri.parse('$baseUrl/api/verify-reset-code/');
+  try {
+    final response = await http.post(
+      url,
+      headers: {'Content-Type': 'application/json'},
+      body: json.encode({
+        'code': code,
+        'uid': uid,
+        'new_password': newPassword,
+      }),
+    );
+
+    if (response.statusCode == 200) {
+      return json.decode(response.body);
+    } else {
+      final errorData = json.decode(response.body);
+      throw Exception(errorData['error'] ?? 'Error al verificar el código');
+    }
+  } catch (e) {
+    throw Exception('Error de conexión: $e');
+  }
+}
   Future<Map<String, dynamic>> login(String username, String password) async {
     final url = Uri.parse('$baseUrl/api/token/');
     try {
