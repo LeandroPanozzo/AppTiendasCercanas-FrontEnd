@@ -337,8 +337,11 @@ class _WelcomePageState extends State<WelcomePage> with WidgetsBindingObserver {
       onLogout: _logout,
       searchBar: isLoggedIn ? CustomSearchBar(
         onSearch: _handleSearch,
-        hintText: 'Buscar productos...',
+        hintText: 'Buscar productos o tiendas...',
         showFilterButton: false,
+        // Pass products and store information from your data
+        products: productos,
+        stores: _extractUniqueStores(productos),
       ) : null,
       onApplyFilters: isLoggedIn ? _handleFilters : null,
       currentFilters: currentFilters,
@@ -612,4 +615,20 @@ class _WelcomePageState extends State<WelcomePage> with WidgetsBindingObserver {
         ),
   );
 }
+}
+// Add this helper method to extract unique stores from products
+List<Map<String, dynamic>> _extractUniqueStores(List<Map<String, dynamic>> products) {
+  final Map<String, Map<String, dynamic>> uniqueStores = {};
+  
+  for (var product in products) {
+    final store = product['tienda'];
+    if (store != null && store['id'] != null) {
+      final storeId = store['id'].toString();
+      if (!uniqueStores.containsKey(storeId)) {
+        uniqueStores[storeId] = Map<String, dynamic>.from(store);
+      }
+    }
+  }
+  
+  return uniqueStores.values.toList();
 }
